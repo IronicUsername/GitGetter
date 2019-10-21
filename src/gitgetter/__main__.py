@@ -1,4 +1,4 @@
-from .service import build
+from ._service import build
 
 if __name__ == "__main__":
     build()

@@ -11,6 +11,7 @@ pydocstyle = "^4.0"
 mypy = "^0.740.0"
 flask = "^1.1"
 requests = "^2.22"
+pytest = "^5.2"
 
 [tool.poetry.dev-dependencies]
 
