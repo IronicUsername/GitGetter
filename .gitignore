@@ -1,0 +1,22 @@
+# Python 3
+__pycache__/
+.coverage*
+.hypothesis/
+.mypy_cache/
+.pytest_cache/
+.benchmarks/
+cov_html/
+.python-version
+pip-wheel*
+
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# Environment
+.venv/
+.python-version
+myenv.sh
+.myenv
