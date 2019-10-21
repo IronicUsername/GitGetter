@@ -29,15 +29,11 @@ def _get_user_data(user: str) -> Dict[str, Dict[str, Any]]:
     user_repos = {'repos': []}
     data = json.loads(_api_call(API_URL + '/users/', user, '/repos').text)
     for repo in data:
-        user_repos['repos'].append({
-          'name': repo['name'],
-          'last_modified': repo['updated_at']
-        })
+        user_repos['repos'].append({'name': repo['name'], 'last_modified': repo['updated_at']})
     return user_repos
 
 
 def _check_within_time(deadline: datetime.datetime, last_updated: datetime.datetime) -> bool:
-    print(deadline, last_updated)
     if deadline.replace(microsecond=0) <= last_updated <= datetime.datetime.now().replace(microsecond=0):
         return True
     return False
@@ -46,11 +42,16 @@ def _check_within_time(deadline: datetime.datetime, last_updated: datetime.datet
 def repo_downwards(repositorie: str) -> Dict[str, bool]:
     re = {'downwards': False}
     data = json.loads(_api_call(API_URL + '/search/repositories?q=', repositorie).text)
-    repo_stat = {'repos': []}
     for repo in data['items']:
         repo_nfo = json.loads(_api_call(API_URL + '/repos/', repo['owner']['login'], '/' + repo['name'] + '/stats/code_frequency').text)
-        print(repo_nfo)
-        # repo_nfo_time = datetime.datetime.fromtimestamp(repo_nfo[0][0])
+        for nfo in repo_nfo:
+            # print(nfo)
+            if nfo[1] and nfo[2] != 0:
+                repo_nfo_time = datetime.datetime.fromtimestamp(nfo[0])
+                if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) and nfo[2] < nfo[1]:
+                    re = {'downwards': False}
+    return re
+
         # repo_stat['repos'].append({
         #     'owner': repo['owner']['login'],
         #     'repo_stats': repo_nfo_time if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) else None
@@ -67,4 +68,5 @@ def repo_downwards(repositorie: str) -> Dict[str, bool]:
     #         # repo_stat[repo['name']] = json.loads(_api_call(REPO_URL, user, '/' + repo['name'] + '/stats/code_frequency').text)
     #         print(repo_stat)
     #         print('-----------------------')
+
 print(repo_downwards(REPO))
