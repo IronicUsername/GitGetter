@@ -5,6 +5,8 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/src
 
+RUN apt-get update && apt-get install -y curl
+
 RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && \
     . $HOME/.poetry/env && \
     poetry config settings.virtualenvs.create false && \
@@ -17,6 +19,6 @@ RUN . $HOME/.poetry/env && \
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 5000
 
 CMD ["python", "-m", "gitgetter"]

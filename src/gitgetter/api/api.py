@@ -28,7 +28,7 @@ def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.mo
     requests.models.Response
         'requests' Response.
     """
-    return requests.get(url + user + extend_url, headers={'Authorization': API_TOKEN})
+    return requests.get(url + user + extend_url, headers={'Authorization': 'token %s' % API_TOKEN})
 
 
 def _user_repo_exist(use_case: str, item: str) -> bool:
@@ -106,10 +106,13 @@ def _check_downwards(repo_stats: List[int]) -> bool:
         Set to 'true' if repo is going downwards, else 'false'.
     """
     for nfo in repo_stats:
-        if nfo[1] != 0 and nfo[2] != 0:
-            repo_nfo_time = datetime.datetime.fromtimestamp(nfo[0])
-            if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) and nfo[2] > nfo[1]:
-                return True
+        try:
+            if nfo[1] != 0 and nfo[2] != 0:
+                repo_nfo_time = datetime.datetime.fromtimestamp(nfo[0])
+                if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) and nfo[2] > nfo[1]:
+                    return True
+        except Exception as e:
+            print(e)
     return False
 
 
@@ -176,7 +179,7 @@ def repo_downwards(user: str, repositorie: str) -> Dict[str, Any]:
     if _user_repo_exist('repositories', repositorie) and _user_repo_exist('users', user):
         repo_nfo = json.loads(_api_call(API_URL + '/repos/', user, '/' + repositorie + '/stats/code_frequency').text)
         if _check_downwards(repo_nfo):
-            re = {'downwards': False}
+            re = {'downwards': True}
     else:
         return _error_msg()
     return re
@@ -204,7 +207,7 @@ def repo_downwards1(repositorie: str) -> Dict[str, Any]:
         for repo in data['items']:
             repo_nfo = json.loads(_api_call(API_URL + '/repos/', repo['owner']['login'], '/' + repo['name'] + '/stats/code_frequency').text)
             if _check_downwards(repo_nfo):
-                re = {'downwards': False}
+                re = {'downwards': True}
     else:
         return _error_msg(repositorie)
     return re

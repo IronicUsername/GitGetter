@@ -1,4 +1,3 @@
-from ._service import build
+from ._service import build   # pragma: no cover
 
-if __name__ == "__main__":
-    build()
+build()

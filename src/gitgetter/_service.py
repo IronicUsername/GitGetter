@@ -1,6 +1,7 @@
-from typing import Any, Dict
-from gitgetter.api import repo_downwards, repo_downwards1, user_active
 from flask import Flask
+from typing import Any, Dict
+
+from gitgetter.api import repo_downwards, repo_downwards1, user_active
 
 app = Flask(__name__)
 
