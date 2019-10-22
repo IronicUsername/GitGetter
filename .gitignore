@@ -1,17 +1,19 @@
 # Python 3
 __pycache__/
-.coverage*
-.hypothesis/
 .mypy_cache/
 .pytest_cache/
-.benchmarks/
+.hypothesis/
+.cache/
+.coverage*
 cov_html/
-.python-version
-pip-wheel*
+cov.xml
+
+# Virtual environments
+venv/
+.venv/
 
 # Python Packaging
 *.egg-info/
-dist/
 pip-wheel-metadata/w
 
 # macOS
@@ -19,6 +21,9 @@ pip-wheel-metadata/w
 
 # Visual Studio Code
 .vscode/
+
+# Pipenv
+Pipfile.lock
 
 # Environment
 .venv/

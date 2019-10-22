@@ -19,4 +19,4 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["python", "-m", "gitgetter.api"]
+CMD ["python", "-m", "gitgetter"]

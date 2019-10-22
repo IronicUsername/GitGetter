@@ -2,7 +2,7 @@ import requests
 import json
 import os
 import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 API_URL = 'https://api.github.com'
 API_TOKEN = os.environ['GITHUB_TOKEN']
@@ -17,11 +17,11 @@ def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.mo
     Parameters
     ----------
     url: str
-        Github API URL to call.
+        API URL to call.
     user: str
-        Github-username from requested user.
+        Username from requested user.
     extend_url: str = ''
-        Github API URL extension if needed.
+        URL extension if needed.
 
     Returns
     -------
@@ -31,26 +31,28 @@ def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.mo
     return requests.get(url + user + extend_url, headers={'Authorization': API_TOKEN})
 
 
-def _user_repo_exist(use_case: str, user: str) -> bool:
-    """Check if user exists or repo.
+def _user_repo_exist(use_case: str, item: str) -> bool:
+    """Check if user or repo exists.
 
     Parameters
     ----------
-    user: str
-        Github-username from requested user.
+    use_case: str
+        Usecase for what the call should happen.
+    item: str
+        User or repo name from requested usecase.
 
     Returns
     -------
-    bool
-        'true' if user exist, otherwise 'false'.
+    bool: bool
+        'true' if user/repo does exist, otherwise 'false'.
     """
-    re = _api_call(API_URL + f'/search/{use_case}?q=', user)
+    re = _api_call(API_URL + '/search/' + use_case + '?q=', item)
     if json.loads(re.content).get('total_count') > 0:
         return True
     return False
 
 
-def _get_user_data(user: str) -> Dict[str, Dict[str, Any]]:
+def _get_user_data(user: str) -> Dict[str, List[Any]]:   # TODO refactor
     """Get Github userdata.
 
     Parameters
@@ -63,7 +65,7 @@ def _get_user_data(user: str) -> Dict[str, Dict[str, Any]]:
     user_repos: Dict[str, Dict[str, Any]]
         Dict with all repos 'name' and 'last_modified'.
     """
-    user_repos = {'repos': []}
+    user_repos: Dict[str, List] = {'repos': []}
     data = json.loads(_api_call(API_URL + '/users/', user, '/repos').text)
     for repo in data:
         user_repos['repos'].append({'name': repo['name'], 'last_modified': repo['updated_at']})
@@ -77,7 +79,7 @@ def _check_within_time(deadline: datetime.datetime, last_updated: datetime.datet
     ----------
     deadline: datetime.datetime
         End time of the timeframe.
-    last_updated: str
+    last_updated: datetime.datetime
         Github-user push/repo last touched.
 
     Returns
@@ -90,7 +92,28 @@ def _check_within_time(deadline: datetime.datetime, last_updated: datetime.datet
     return False
 
 
-def _error_msg(use_case: str) -> Dict[str, str]:
+def _check_downwards(repo_stats: List[int]) -> bool:
+    """Check if repo is going downwards.
+
+    Parameters
+    ----------
+    repo_stats: List[int, int, int]
+        Github repo stats.
+
+    Returns
+    -------
+    bool: bool
+        Set to 'true' if repo is going downwards, else 'false'.
+    """
+    for nfo in repo_stats:
+        if nfo[1] != 0 and nfo[2] != 0:
+            repo_nfo_time = datetime.datetime.fromtimestamp(nfo[0])
+            if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) and nfo[2] > nfo[1]:
+                return True
+    return False
+
+
+def _error_msg(use_case: str = 'Either repo or user') -> Dict[str, str]:
     """Give back faild request.
 
     Parameters
@@ -106,7 +129,7 @@ def _error_msg(use_case: str) -> Dict[str, str]:
     return {'error': f'{use_case} does not exist'}
 
 
-def user_active(user: str) -> Dict[str, bool]:
+def user_active(user: str) -> Dict[str, Any]:
     """Get last modified repo from user within 24h.
 
     Parameters
@@ -116,7 +139,7 @@ def user_active(user: str) -> Dict[str, bool]:
 
     Returns
     -------
-    re: Dict[str, bool]
+    re: Dict[str, Any]
         Dict 'was_active' with bool value.
         Set to 'true' if user pushed within 24h into repo otherwise 'false'.
     """
@@ -133,7 +156,7 @@ def user_active(user: str) -> Dict[str, bool]:
     return re
 
 
-def repo_downwards1(repositorie: str) -> Dict[str, bool]:
+def repo_downwards(user: str, repositorie: str) -> Dict[str, Any]:
     """If the specified git repo had more deletions than additions in the last 7 days.
 
     Parameters
@@ -145,20 +168,43 @@ def repo_downwards1(repositorie: str) -> Dict[str, bool]:
 
     Returns
     -------
-    re: Dict[str, bool]
+    re: Dict[str, Any]
         Dict 'downwards' with bool value.
         Set to 'true' if repo had more deletions than additions within the last 7 days otherwise 'false'.
     """
     re = {'downwards': False}
-    if _user_repo_exist('repos', repositorie):
+    if _user_repo_exist('repositories', repositorie) and _user_repo_exist('users', user):
+        repo_nfo = json.loads(_api_call(API_URL + '/repos/', user, '/' + repositorie + '/stats/code_frequency').text)
+        if _check_downwards(repo_nfo):
+            re = {'downwards': False}
+    else:
+        return _error_msg()
+    return re
+
+
+def repo_downwards1(repositorie: str) -> Dict[str, Any]:
+    """Return same thing as 'repo_downwards' but here all every repo gets checked.
+
+    Can empty the limited API calls from Github.
+
+    Parameters
+    ----------
+    repo: str
+        Github-repo from requested user.
+
+    Returns
+    -------
+    re: Dict[str, Any]
+        Dict 'downwards' with bool value.
+        Set to 'true' if repo had more deletions than additions within the last 7 days otherwise 'false'.
+    """
+    re = {'downwards': False}
+    if _user_repo_exist('repositories', repositorie):
         data = json.loads(_api_call(API_URL + '/search/repositories?q=', repositorie).text)
         for repo in data['items']:
             repo_nfo = json.loads(_api_call(API_URL + '/repos/', repo['owner']['login'], '/' + repo['name'] + '/stats/code_frequency').text)
-            for nfo in repo_nfo:
-                if nfo[1] and nfo[2] != 0:
-                    repo_nfo_time = datetime.datetime.fromtimestamp(nfo[0])
-                    if _check_within_time(DOWNWARDS_TRANGE, repo_nfo_time) and nfo[2] < nfo[1]:
-                        re = {'downwards': False}
+            if _check_downwards(repo_nfo):
+                re = {'downwards': False}
     else:
         return _error_msg(repositorie)
     return re

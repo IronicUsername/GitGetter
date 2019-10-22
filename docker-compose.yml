@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   gitgetter:
@@ -6,6 +6,7 @@ services:
     environment:
       - GITHUB_TOKEN
     ports:
-      - "8080:80"
+      - "5000:5000"
     volumes:
       - .:/app
+    command: ["python", "-m", "gitgetter"]
