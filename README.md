@@ -5,7 +5,7 @@ Small little service that lets you stalk other people on Github.
 ## First Things First
 Download GitGetter:
 ```
-git clone https://github.com/IronicUsername/gitgetter.git
+git clone https://github.com/IronicUsername/GitGetter.git
 ```
 
 After that you should create a `myenv.sh` for your personal Github token (which you can get [here](https://github.com/settings/tokens/new))
