@@ -30,5 +30,6 @@ All requests have to be sent at `http://0.0.0.0:5000`.
 
 The service has 3 endpoints:
  - [`GET`] `/active/<user>` Returns a json `{'was_active': boolean}`. If the user has pushed code within the last 24h it's set to `true`, else `false`
+ - [`GET`] `/stats/<user>` Returns a json with all user related stats.
  - [`GET`] `/downwards/<user>/<repo>` Returns a json `{'downwards': boolean}`. If more code got deleted from a specific user repo than added, it's set to `true`, else `false`
  - [`GET`] `/downwards1/<repo>` Returns a json `{'downwards': boolean}`. If more code got deleted from a user repo than added, it's set to `true`, else `false
