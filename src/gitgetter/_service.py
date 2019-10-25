@@ -1,7 +1,7 @@
 from flask import Flask
 from typing import Any, Dict
 
-from gitgetter.api import repo_downwards, repo_downwards1, user_active
+from gitgetter.api import repo_downwards, user_active
 
 app = Flask(__name__)
 
@@ -16,12 +16,6 @@ def get_user_active(user: str) -> Dict[str, Any]:
 def get_downwards(user: str, repo: str) -> Dict[str, Any]:
     """Call 'downwards' endpoint."""
     return repo_downwards(user, repo)
-
-
-@app.route('/downwards1/<repo>', methods=['GET'])
-def get_downwards1(repo: str) -> Dict[str, Any]:
-    """Call 'downwards1' endpoint."""
-    return repo_downwards1(repo)
 
 
 def build() -> None:
