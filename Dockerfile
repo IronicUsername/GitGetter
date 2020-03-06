@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y curl
 
 RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && \
     . $HOME/.poetry/env && \
-    poetry config settings.virtualenvs.create false && \
+    poetry config virtualenvs.create false && \
     rm -rf ~/.cache/pip
 
 COPY pyproject.toml poetry.lock /app/
