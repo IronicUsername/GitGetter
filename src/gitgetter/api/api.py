@@ -5,7 +5,7 @@ import datetime
 from typing import Any, Dict, List, Optional
 
 API_URL = 'https://api.github.com'
-API_TOKEN = os.environ['GITHUB_TOKEN', '']
+API_TOKEN = os.environ['GITHUB_TOKEN', 'secret']
 
 ACTIVE_USER_TRANGE = datetime.datetime.now() - datetime.timedelta(days=1)
 DOWNWARDS_TRANGE = datetime.datetime.today() - datetime.timedelta(days=7)
