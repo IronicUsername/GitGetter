@@ -4,7 +4,7 @@ from gitgetter.api import user_active, repo_downwards, repo_downwards1
 
 
 @pytest.mark.parametrize('user,result', [
-    ('IronicUsername', {'was_active': True}),
+    ('sdispater', {'was_active': True}),
     ('woksalonica', {'was_active': False}),
     ('oiewruoiwerweoiruower', {'error': 'oiewruoiwerweoiruower does not exist'}),
 ])

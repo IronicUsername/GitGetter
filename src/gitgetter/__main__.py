@@ -1,3 +1,3 @@
-from ._service import build   # pragma: no cover
+from ._service import build  # pragma: no cover
 
 build()
