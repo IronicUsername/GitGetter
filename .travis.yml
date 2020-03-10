@@ -1,25 +1,14 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
-stages:
-  - lint
-  - tests
+    - "3.6"
+    - "3.7"
+    - "3.8"
 before_install:
-  - pip install poetry
+    - pip install poetry
 install:
-  - poetry install
-
-jobs:
-  include:
-    - stage: lint
-      name: lint
-      script:
-        - poetry run flake8 .
-        - poetry run mypy src/
-        - poetry run pydocstyle src/
-    - stage: tests
-        name: tests
-        script: poetry run pytest tests/
+    - poetry install
+script:
+    - poetry run flake8 .
+    - poetry run mypy src/
+    - poetry run pydocstyle src/
+    - poetry run pytest tests/
