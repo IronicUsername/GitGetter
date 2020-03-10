@@ -2,7 +2,8 @@ import requests
 import json
 from os import environ
 import datetime
-from typing import Any, Dict, List, Optional
+
+from typing import Any, Dict, List
 
 API_URL = 'https://api.github.com'
 API_TOKEN = environ.get('GITHUB_TOKEN')
@@ -11,7 +12,7 @@ ACTIVE_USER_TRANGE = datetime.datetime.now() - datetime.timedelta(days=1)
 DOWNWARDS_TRANGE = datetime.datetime.today() - datetime.timedelta(days=7)
 
 
-def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.models.Response]:
+def _api_call(url: str, user: str, extend_url: str = '') -> requests.models.Response:
     """Call Github API.
 
     Parameters
@@ -54,8 +55,8 @@ def _user_repo_exist(use_case: str, item: str) -> bool:
     return False
 
 
-def _get_user_data(user: str) -> Dict[str, List[Any]]:   # TODO refactor
-    """Get Github userdata.
+def _check_user_data(user: str) -> bool:
+    """Check Github user events for push events.
 
     Parameters
     ----------
@@ -64,14 +65,15 @@ def _get_user_data(user: str) -> Dict[str, List[Any]]:   # TODO refactor
 
     Returns
     -------
-    user_repos: Dict[str, Dict[str, Any]]
-        Dict with all repos 'name' and 'last_modified'.
+    bool: bool
+        'true' if user has pushed code within 24h, otherwise 'false'.
     """
-    user_repos: Dict[str, List] = {'repos': []}
-    data = json.loads(_api_call(API_URL + '/users/', user, '/repos').text)
-    for repo in data:
-        user_repos['repos'].append({'name': repo['name'], 'last_modified': repo['updated_at']})
-    return user_repos
+    data = json.loads(_api_call(API_URL + '/users/', user, '/events').text)
+    for event in data:
+        last_updated = datetime.datetime.strptime(event['created_at'], "%Y-%m-%dT%H:%M:%SZ")
+        if event['type'] == 'PushEvent' and _check_within_time(ACTIVE_USER_TRANGE, last_updated):
+            return True
+    return False
 
 
 def _check_within_time(deadline: datetime.datetime, last_updated: datetime.datetime) -> bool:
@@ -150,12 +152,17 @@ def user_active(user: str) -> Dict[str, Any]:
     """
     re = {'was_active': False}
     if _user_repo_exist('users', user):
-        data = _get_user_data(user)
-        for repo in data['repos']:
-            last_updated = datetime.datetime.strptime(repo['last_modified'], "%Y-%m-%dT%H:%M:%SZ")
-            if _check_within_time(ACTIVE_USER_TRANGE, last_updated):
-                re['was_active'] = True
-                break
+        if _check_user_data(user):
+            re['was_active'] = True
+    else:
+        return _error_msg(user)
+    return re
+
+
+def user_stats(user: str) -> Dict[str, Any]:
+    re = {'bla': 'bla'}
+    if _user_repo_exist('users', user):
+        print('lol')
     else:
         return _error_msg(user)
     return re
