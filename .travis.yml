@@ -9,6 +9,6 @@ install:
     - poetry install
 script:
     - poetry run flake8 .
-    - poetry run mypy src/
+    # - poetry run mypy src/
     - poetry run pydocstyle src/
     - poetry run pytest tests/
