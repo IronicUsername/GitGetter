@@ -1,3 +1,5 @@
+from os import environ
+
 from flask import Flask
 from typing import Any, Dict
 
@@ -23,7 +25,10 @@ def get_downwards1(repo: str) -> Dict[str, Any]:
     """Call 'downwards1' endpoint."""
     return repo_downwards1(repo)
 
+@app.route('/')
+def base_dir() -> str:
+    return 'hi.'
 
 def build() -> None:
     """Build app."""
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=environ.get('GG_SERVER_PORT', '5000'), debug=environ.get('GG_SERVER_DEBUG', True))
