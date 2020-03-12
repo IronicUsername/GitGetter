@@ -1,8 +1,9 @@
-import requests
+import datetime
 import json
 from os import environ
-import datetime
 from typing import Any, Dict, List, Optional
+
+import requests
 
 API_URL = 'https://api.github.com'
 API_TOKEN = environ.get('GG_GITHUB_TOKEN')
@@ -29,7 +30,7 @@ def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.mo
         'requests' Response.
     """
     if environ.get('GG_GITHUB_TOKEN'):
-        return requests.get(url + user + extend_url, headers={'Authorization': 'token %s' % API_TOKEN})
+        return requests.get(url + user + extend_url, headers={'Authorization': 'token ' + API_TOKEN})
     return requests.get(url + user + extend_url)
 
 
@@ -152,7 +153,7 @@ def user_active(user: str) -> Dict[str, Any]:
     if _user_repo_exist('users', user):
         data = _get_user_data(user)
         for repo in data['repos']:
-            last_updated = datetime.datetime.strptime(repo['last_modified'], "%Y-%m-%dT%H:%M:%SZ")
+            last_updated = datetime.datetime.strptime(repo['last_modified'], '%Y-%m-%dT%H:%M:%SZ')
             if _check_within_time(ACTIVE_USER_TRANGE, last_updated):
                 re['was_active'] = True
                 break
