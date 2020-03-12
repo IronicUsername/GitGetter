@@ -5,7 +5,7 @@ import datetime
 from typing import Any, Dict, List, Optional
 
 API_URL = 'https://api.github.com'
-API_TOKEN = environ.get('GITHUB_TOKEN')
+API_TOKEN = environ.get('GG_GITHUB_TOKEN')
 
 ACTIVE_USER_TRANGE = datetime.datetime.now() - datetime.timedelta(days=1)
 DOWNWARDS_TRANGE = datetime.datetime.today() - datetime.timedelta(days=7)
@@ -28,7 +28,7 @@ def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.mo
     requests.models.Response
         'requests' Response.
     """
-    if environ.get('GITHUB_TOKEN'):
+    if environ.get('GG_GITHUB_TOKEN'):
         return requests.get(url + user + extend_url, headers={'Authorization': 'token %s' % API_TOKEN})
     return requests.get(url + user + extend_url)
 

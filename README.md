@@ -1,34 +1,92 @@
 # GitGetter
+small little service that lets you stalk other people on GitHub.
 
-Small little service that lets you stalk other people on Github.
 
-## First Things First
-Download GitGetter:
-```
+## environment parameters
+* `GG_GITHUB_TOKEN`: your GitHub token. if you run GitGetter with it, you have more calls to the API. you can get the token [here](https://github.com/settings/tokens/new).
+* `GG_SERVICE_PORT`: the port on which the service is callable. by default the port is set to 5000.
+* `GG_SERVICE_DEBUG`: debug mode is by default `True`. pass `False` in this environment variable to change it.
+
+
+## install & run
+download it:
+```bash
 git clone https://github.com/IronicUsername/GitGetter.git
 ```
-
-After that you should create a `myenv.sh` for your personal Github token (which you can get [here](https://github.com/settings/tokens/new))
+and run it:
+```bash
+docker-compose up --force-recreate --build -d
 ```
-export GITHUB_TOKEN="<YOUR-TOKEN>"
+
+
+## development
+in order to develop on GitGetter you need to have [poetry](https://poetry.eustace.io/docs/#installation) installed.
+after you have done that, install all dependencies
+```bash
+poetry install
 ```
-and than you `source myenv.sh` it in your terminal.
+and access the virtual environment
+```bash
+poetry shell
+```
 
-<b>This step is important.</b>
 
-<br>
+## local testing
+lint the code with
+```bash
+flake8 . && mypy src/ && pydocstyle src/
+```
+and test it with
+```bash
+pytest -n 4 -x # -n for 4 parallel jobs & -x to stop on the first encountered error
+```
 
-## Start it
-1. [Install poetry](https://poetry.eustace.io/docs/#installation). After the installation, you have to install the dependencies into the virtual environment with `poetry install`.
-2. Enter the virtual environment with `poetry shell`.
-3. Start the service with `docker-compose up`
 
-That's it.
+## endpoints
+```http
+GET /active/IronicUsername
+```
+| parameter | type | description |
+| :--- | :--- | :--- |
+| `user` | `string` | **required**. the username of the person you stalking. |
 
-## Usage
-All requests have to be sent at `http://0.0.0.0:5000`.
 
-The service has 3 endpoints:
- - [`GET`] `/active/<user>` Returns a json `{'was_active': boolean}`. If the user has pushed code within the last 24h it's set to `true`, else `false`
- - [`GET`] `/downwards/<user>/<repo>` Returns a json `{'downwards': boolean}`. If more code got deleted from a specific user repo than added, it's set to `true`, else `false`
- - [`GET`] `/downwards1/<repo>` Returns a json `{'downwards': boolean}`. If more code got deleted from a user repo than added, it's set to `true`, else `false
+### response
+if the user has pushed code within the last 24h it's set to `true`, else `false`.
+```javascript
+{
+    "was_active": bool
+}
+
+```
+---
+```http
+GET /downwards/IronicUsername/GitGetter
+```
+| parameter | type | description |
+| :--- | :--- | :--- |
+| `user` | `string` | **required**. the username of the person you stalking. |
+| `repo` | `string` | **required**. the GitHub repository in question. |
+
+### response
+if more code got deleted from a specific user repo than added, it's set to `true`, else `false`.
+```javascript
+{
+    "downwards": bool
+}
+```
+---
+```http
+GET /downwards1/GitGetter
+```
+| parameter | type | description |
+| :--- | :--- | :--- |
+| `repo` | `string` | **required**. the GitHub repository in question. |
+
+### response
+if more code got deleted from a user repo than added, it's set to `true`, else `false`.
+```javascript
+{
+    "downwards": bool
+}
+```

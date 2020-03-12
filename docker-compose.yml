@@ -4,9 +4,10 @@ services:
   gitgetter:
     build: .
     environment:
-      - GITHUB_TOKEN
+      - GG_GITHUB_TOKEN
+      - GG_SERVER_PORT
     ports:
-      - "5000:5000"
+      - "${GG_SERVER_PORT:-5000}:5000"
     volumes:
       - .:/app
     command: ["python", "-m", "gitgetter"]

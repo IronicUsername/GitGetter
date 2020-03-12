@@ -31,4 +31,4 @@ def base_dir() -> str:
 
 def build() -> None:
     """Build app."""
-    app.run(host='0.0.0.0', port=environ.get('GG_SERVER_PORT', '5000'), debug=environ.get('GG_SERVER_DEBUG', True))
+    app.run(host='0.0.0.0', port='5000', debug=environ.get('GG_SERVICE_DEBUG', True))
