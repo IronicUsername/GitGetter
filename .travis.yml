@@ -1,0 +1,14 @@
+language: python
+python:
+    - "3.6"
+    - "3.7"
+    - "3.8"
+before_install:
+    - pip install poetry
+install:
+    - poetry install
+script:
+    - poetry run flake8 .
+    # - poetry run mypy src/
+    - poetry run pydocstyle src/
+    # - poetry run pytest tests/ commenting just for now cause i gotta refactor this whole shit

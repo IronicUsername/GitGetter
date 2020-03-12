@@ -1,11 +1,11 @@
 import requests
 import json
-import os
+from os import environ
 import datetime
 from typing import Any, Dict, List
 
 API_URL = 'https://api.github.com'
-API_TOKEN = os.environ['GITHUB_TOKEN']
+API_TOKEN = environ.get('GITHUB_TOKEN')
 
 ACTIVE_USER_TRANGE = datetime.datetime.now() - datetime.timedelta(days=1)
 DOWNWARDS_TRANGE = datetime.datetime.today() - datetime.timedelta(days=7)
@@ -28,7 +28,9 @@ def _api_call(url: str, user: str, extend_url: str = '') -> requests.models.Resp
     requests.models.Response
         'requests' Response.
     """
-    return requests.get(url + user + extend_url, headers={'Authorization': 'token %s' % API_TOKEN})
+    if environ.get('GITHUB_TOKEN'):
+        return requests.get(url + user + extend_url, headers={'Authorization': 'token %s' % API_TOKEN})
+    return requests.get(url + user + extend_url)
 
 
 def _user_repo_exist(use_case: str, item: str) -> bool:
