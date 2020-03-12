@@ -2,7 +2,7 @@ import requests
 import json
 from os import environ
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 API_URL = 'https://api.github.com'
 API_TOKEN = environ.get('GITHUB_TOKEN')
@@ -11,7 +11,7 @@ ACTIVE_USER_TRANGE = datetime.datetime.now() - datetime.timedelta(days=1)
 DOWNWARDS_TRANGE = datetime.datetime.today() - datetime.timedelta(days=7)
 
 
-def _api_call(url: str, user: str, extend_url: str = '') -> Optional[requests.models.Response]:
+def _api_call(url: str, user: str, extend_url: str = '') -> requests.models.Response:
     """Call Github API.
 
     Parameters
@@ -184,32 +184,4 @@ def repo_downwards(user: str, repositorie: str) -> Dict[str, Any]:
             re = {'downwards': True}
     else:
         return _error_msg()
-    return re
-
-
-def repo_downwards1(repositorie: str) -> Dict[str, Any]:
-    """Return same thing as 'repo_downwards' but here all every repo gets checked.
-
-    Can empty the limited API calls from Github.
-
-    Parameters
-    ----------
-    repo: str
-        Github-repo from requested user.
-
-    Returns
-    -------
-    re: Dict[str, Any]
-        Dict 'downwards' with bool value.
-        Set to 'true' if repo had more deletions than additions within the last 7 days otherwise 'false'.
-    """
-    re = {'downwards': False}
-    if _user_repo_exist('repositories', repositorie):
-        data = json.loads(_api_call(API_URL + '/search/repositories?q=', repositorie).text)
-        for repo in data['items']:
-            repo_nfo = json.loads(_api_call(API_URL + '/repos/', repo['owner']['login'], '/' + repo['name'] + '/stats/code_frequency').text)
-            if _check_downwards(repo_nfo):
-                re = {'downwards': True}
-    else:
-        return _error_msg(repositorie)
     return re

@@ -1,6 +1,6 @@
 import pytest
 
-from gitgetter.api import user_active, repo_downwards, repo_downwards1
+from gitgetter.api import user_active, repo_downwards
 
 
 @pytest.mark.parametrize('user,result', [
@@ -20,12 +20,3 @@ def test_user_active(user, result):
 ])
 def test_repo_downwards(user, repo, result):
     assert repo_downwards(user, repo) == result
-
-
-@pytest.mark.parametrize('repo,result', [
-    ('gitgetter', {'downwards': False}),
-    # ('XY', 'xy', {'downwards': True}),   # saddly I couldn't this case
-    ('oiewruoiwerweoiruower', {'error': 'oiewruoiwerweoiruower does not exist'}),
-])
-def test_repo_downwards1(repo, result):
-    assert repo_downwards1(repo) == result

@@ -20,11 +20,6 @@ def get_downwards(user: str, repo: str) -> Dict[str, Any]:
     return repo_downwards(user, repo)
 
 
-@app.route('/downwards1/<repo>', methods=['GET'])
-def get_downwards1(repo: str) -> Dict[str, Any]:
-    """Call 'downwards1' endpoint."""
-    return repo_downwards1(repo)
-
 @app.route('/')
 def base_dir() -> str:
     return 'hi.'
